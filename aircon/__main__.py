@@ -97,6 +97,10 @@ def ParseArguments() -> argparse.Namespace:
   parser_discovery.add_argument('--properties',
                                 action='store_true',
                                 help='Fetch the properties for the device.')
+  parser_discovery.add_argument('--local_ip',
+                                required=False,
+                                default=None,
+                                help='The local IP address to report to the AC unit(s) as target server. Useful in case the server running this application has multiple IP addresses (e.g. in multiple VLANs), since some/most(?) AC units will refuse to report to an IP address outside of their subnet.')
   return arg_parser.parse_args()
 
 
@@ -161,7 +165,7 @@ async def mqtt_loop(mqtt_client: MqttClient):
 
 
 async def run(parsed_args):
-  notifier = Notifier(parsed_args.port)
+  notifier = Notifier(parsed_args.port, parsed_args.local_ip)
   devices = []
   for i in range(len(parsed_args.config)):
     with open(parsed_args.config[i], 'rb') as f:
